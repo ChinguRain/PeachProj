@@ -1,0 +1,87 @@
+#1 Generate Random Float Values
+import random
+
+def generate_random_floats(count=1000, a=1.0, b=10.0):
+    return [round(random.uniform(a, b), 2) for _ in range(count)]
+
+
+OR
+
+import random
+
+def generate_random_floats(count=1000):
+    # Generate random floats without restrictions
+    return [random.uniform(-1e6, 1e6) for _ in range(count)]  # Example range from -1,000,000 to 1,000,000
+------------------------------------------------------------------
+You can use the random module to generate random float values. 
+This function generates count random float values between a and b, rounded to two decimal places.
+
+------------------------------------------------------------------
+def insert_random_floats(random_floats):
+    engine = create_engine('postgresql://your_user:your_password@localhost/your_db')
+    Base.metadata.create_all(engine)
+    Session = sessionmaker(bind=engine)
+    session = Session()
+
+    # Create instances of RandomFloat for each value
+    random_float_objects = [RandomFloat(value=value) for value in random_floats]
+
+    # Use bulk_save_objects for bulk insert
+    session.bulk_save_objects(random_float_objects)
+
+    session.commit()
+    session.close()
+-----------------------------------------------------------------
+def main():
+    random_floats = generate_random_floats()  # Generate random floats
+    insert_random_floats(random_floats)  # Insert them into the database
+
+if __name__ == "__main__":
+    main()
+-----------------------------------------------------------------
+import random
+from sqlalchemy import create_engine, Column, Integer, Float
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+
+# Define the base class for SQLAlchemy models
+Base = declarative_base()
+
+# Define the RandomFloat model
+class RandomFloat(Base):
+    __tablename__ = 'random_floats'
+    id = Column(Integer, primary_key=True)
+    value = Column(Float, nullable=False)  # Use Float to allow for any decimal places
+
+# Function to generate random float values without restrictions
+def generate_random_floats(count=1000):
+    return [random.uniform(-1e6, 1e6) for _ in range(count)]  # Example range
+
+# Function to create the database table
+def create_table(engine):
+    Base.metadata.create_all(engine)
+
+# Function to insert random float values using bulk_save_objects
+def insert_random_floats(random_floats):
+    engine = create_engine('postgresql://your_user:your_password@localhost/your_db')
+    Session = sessionmaker(bind=engine)
+    session = Session()
+
+    # Create instances of RandomFloat for each value
+    random_float_objects = [RandomFloat(value=value) for value in random_floats]
+
+    # Use bulk_save_objects for bulk insert
+    session.bulk_save_objects(random_float_objects)
+
+    session.commit()
+    session.close()
+
+# Main function to run the program
+def main():
+    engine = create_engine('postgresql://your_user:your_password@localhost/your_db')
+    create_table(engine)  # Create the table if it doesn't exist
+    random_floats = generate_random_floats()  # Generate random floats
+    insert_random_floats(random_floats)  # Insert them into the database
+
+if __name__ == "__main__":
+    main()
