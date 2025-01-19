@@ -1,0 +1,103 @@
+#JAVASRPT
+
+const bcrypt = require('bcrypt');
+
+async function hashPassword(password) {
+    const saltRounds = 10; // Cost factor
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+    return hashedPassword;
+}
+
+async function verifyPassword(password, hashedPassword) {
+    const match = await bcrypt.compare(password, hashedPassword);
+    return match;
+}
+
+// Usage
+(async () => {
+    const password = "somePassword";
+    const hashedPassword = await hashPassword(password);
+    console.log("Hash + salt of the password:", hashedPassword);
+    console.log("Password verification success:", await verifyPassword(password, hashedPassword));
+})();
+-------------------------------------------------------------------------------------------------
+#PYTHON
+import bcrypt
+
+def hash_password(password):
+    # Generate a salt and hash the password
+    salt = bcrypt.gensalt()
+    hashed_password = bcrypt.hashpw(password.encode('utf-8'), salt)
+    return hashed_password
+
+def verify_password(password, hashed_password):
+    return bcrypt.checkpw(password.encode('utf-8'), hashed_password)
+
+# Usage
+password = "somePassword"
+hashed_password = hash_password(password)
+print("Hash + salt of the password:", hashed_password)
+print("Password verification success:", verify_password(password, hashed_password))
+
+-----------------------------------------------------------------------------------------------
+const bcrypt = require('bcrypt');
+
+// Simulated database
+const usersDB = {
+    user1: {
+        username: 'user1',
+        password: '$2b$10$EIXZ1Z1Z1Z1Z1Z1Z1Z1Z1uO1Z1Z1Z1Z1Z1Z1Z1Z1Z1Z1Z1Z1Z1Z1' // Example hashed password
+    }
+};
+
+async function login(username, password) {
+    const user = usersDB[username];
+    if (!user) {
+        console.log('User  not found');
+        return false;
+    }
+
+    const match = await bcrypt.compare(password, user.password);
+    if (match) {
+        console.log('Login successful');
+        return true;
+    } else {
+        console.log('Invalid password');
+        return false;
+    }
+}
+
+// Usage
+(async () => {
+    const username = 'user1';
+    const password = 'somePassword'; // User input
+    await login(username, password);
+})();
+----------------------------------------------------------------------
+import bcrypt
+
+# Simulated database
+users_db = {
+    'user1': {
+        'username': 'user1',
+        'password': b'$2b$10$EIXZ1Z1Z1Z1Z1Z1Z1Z1Z1uO1Z1Z1Z1Z1Z1Z1Z1Z1Z1Z1Z1Z1Z1Z1'  # Example hashed password
+    }
+}
+
+def login(username, password):
+    user = users_db.get(username)
+    if not user:
+        print('User  not found')
+        return False
+
+    if bcrypt.checkpw(password.encode('utf-8'), user['password']):
+        print('Login successful')
+        return True
+    else:
+        print('Invalid password')
+        return False
+
+# Usage
+username = 'user1'
+password = 'somePassword'  # User input
+login(username, password)
