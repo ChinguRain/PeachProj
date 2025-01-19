@@ -1,0 +1,101 @@
+<template>
+  <v-container fluid>
+    <v-row>
+      <v-col v-show="currentComponent === 'ProcessChart'" class="mb-13">
+        <ProcessChart
+          :incremented-units="incrementedUnits"
+          :non-defective-products="nonDefectiveProducts"
+          :working-rate="workingRate"
+          :operationInformation="operation_table"
+        />
+      </v-col>
+      <v-col v-show="currentComponent === 'ErrorInformation'">
+        <error-information :abnormalities="abnormalitiesData"></error-information>
+      </v-col>
+    </v-row>
+
+    <v-row>
+      <v-col>
+        <replenishment-notice :notice="replenishmentData"></replenishment-notice>
+      </v-col>
+    </v-row>
+  </v-container>
+</template>
+
+<script>
+import ProcessChart from '@/components/pages/ProcessInformationScreen/ProcessChart.vue';
+import ReplenishmentNotice from '@/components/pages/ProcessInformationScreen/ReplenishmentNotice.vue';
+import { FetchAPI } from '@/utility/apiRequest';
+import ErrorInformation from '@/components/pages/ProcessInformationScreen/ErrorInformation.vue';
+
+export default {
+  name: 'ProcessInformationScreen',
+  components: {
+    ProcessChart,
+    ReplenishmentNotice,
+    ErrorInformation,
+  },
+  data() {
+    return {
+      referenceCT: 0,
+      operationInformation: [],
+      incrementedUnits: 0,
+      incrementInterval: null,
+      nonDefectiveProducts: 0,
+      workingRate: 0,
+      operation_table: [],
+      replenishmentData: [],
+      abnormalitiesData: [],
+      currentComponent: 'ProcessChart',
+      pollingInterval: null, // Add polling interval
+    };
+  },
+  async mounted() {
+    await this.setOperationsData();
+    await this.setReferenceCT();
+    await this.setAbnormalitiesData();
+    await this.setReplenishmentData();
+
+    this.startSwitchInterval();
+    this.startPolling(); // Start polling for updates
+  },
+  beforeDestroy() {
+    this.clearPolling(); // Clear polling when component is destroyed
+  },
+  methods: {
+    // ... (other methods remain unchanged)
+
+    /**
+     * Start polling for updates every 5 seconds
+     */
+    startPolling() {
+      this.pollingInterval = setInterval(async () => {
+        await this.setOperationsData();
+        await this.setReplenishmentData();
+        await this.setAbnormalitiesData();
+      }, 5000); // Adjust the interval as needed (5000 ms = 5 seconds)
+    },
+
+    /**
+     * Clear the polling interval
+     */
+    clearPolling() {
+      if (this.pollingInterval) {
+        clearInterval(this.pollingInterval);
+      }
+    },
+  },
+};
+</script>
+
+--------------------------------------------------------------------------
+Polling Interval:
+
+A new data property pollingInterval is added to keep track of the interval ID.
+The startPolling method is created to set up a polling mechanism that fetches the latest data every 5 seconds (you can adjust this interval as needed).
+Fetching Data:
+
+Inside the setInterval, the methods setOperationsData, setReplenishmentData, and setAbnormalitiesData are called to refresh the data from the backend.
+Cleanup:
+
+The beforeDestroy lifecycle hook is used to clear the polling interval when the component is destroyed, preventing memory leaks.
